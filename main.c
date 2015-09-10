@@ -131,12 +131,16 @@ void checkDecoder()
                 getDiffTickFromNow(gLastChangeTick);
                 if(nowTick > MAX_INTERVAL_ROOL)
                 {
+                           P12 =0;
+                             DDR12 = 1;
                          DisWatchdog();
                             key_interrupt_enable();
                                 NOP();NOP();NOP();
                             Stop();
                         key_interrupt_disable();
                            EnWatchdog();
+                                DDR12 = 0;
+                          P12=1;
        //                   gLastChangeTick = gSysTick;
                 }
         }
@@ -215,6 +219,7 @@ void checkDecoder()
                                  }
                                      else
                                      {
+                                                #if 0
                                                 getDiffTickFromNow(gLastChangeCountTick);
                                                 if(nowTick <3)
                                                 {
@@ -233,6 +238,9 @@ void checkDecoder()
                                                         gTotalChangeCount++;
                                                                 gTotalTempChangeCount++;
                                                 }
+                                                        #endif
+                                                        if(gTotalChangeCount <3)
+                                                                gTotalChangeCount++;
                                                 gLastChangeCountTick = gSysTick;                
                                      }
                                 gChangeCount = 0;
@@ -250,12 +258,13 @@ void checkDecoder()
 
 void InitConfig()
 {
-        DDR1 = 0xCF;   // 11001111
+        DDR1 = 0xCB;   // 11001111
 
          P15=0;
          P14 =0;
+          P12 = 1;
 
-        PUCON = 0x03;   //pull up
+        PUCON = 0x0B;   //pull up
 
          KBIE = 0;  
         KBIM0 = 1; 
