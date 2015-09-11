@@ -131,8 +131,8 @@ void checkDecoder()
                 getDiffTickFromNow(gLastChangeTick);
                 if(nowTick > MAX_INTERVAL_ROOL)
                 {
-                           P12 =0;
-                             DDR12 = 1;
+                                P12 = 0;
+                                 DDR12 = 1;
                          DisWatchdog();
                             key_interrupt_enable();
                                 NOP();NOP();NOP();
@@ -141,7 +141,7 @@ void checkDecoder()
                            EnWatchdog();
                                 DDR12 = 0;
                           P12=1;
-       //                   gLastChangeTick = gSysTick;
+                        gLastChangeTick = gSysTick;
                 }
         }
         
@@ -258,17 +258,20 @@ void checkDecoder()
 
 void InitConfig()
 {
-        DDR1 = 0xCB;   // 11001111
+        DDR1 = 0xCB;   // 11001011
 
          P15=0;
          P14 =0;
           P12 = 1;
 
-        PUCON = 0x0B;   //pull up
+        PUCON = 0x0F;   //pull up
+        P12PD = 0;
 
+                        
          KBIE = 0;  
         KBIM0 = 1; 
         KBIM1 =1;
+         KBIM3 =1;
 
          T0CR = 0x07;   //16.384ms default
         T0IE = 1;
