@@ -21,6 +21,12 @@ unsigned char gIsInVolChangeState;
 
 unsigned int nowTick;
 
+unsigned char gIsInPressState;
+unsigned int gHardKeyTick;
+
+#define P_KEY   P13
+#define GNERATE_RESET_SIGNAL_TIME               450     // 8   8000/16.384
+
 
 #define VOL_UP_START()          P15 = 1 
 #define VOL_UP_STOP()           P15 = 0
@@ -126,21 +132,17 @@ void checkDecoder()
 
         isChange =0;
 
-        if(gIsInVolChangeState == 0)
+        if(gIsInVolChangeState == 0 && gIsInPressState ==0)
         {
                 getDiffTickFromNow(gLastChangeTick);
                 if(nowTick > MAX_INTERVAL_ROOL)
                 {
-                                P12 = 0;
-                                 DDR12 = 1;
                          DisWatchdog();
                             key_interrupt_enable();
                                 NOP();NOP();NOP();
                             Stop();
                         key_interrupt_disable();
                            EnWatchdog();
-                                DDR12 = 0;
-                          P12=1;
                         gLastChangeTick = gSysTick;
                 }
         }
@@ -265,8 +267,7 @@ void InitConfig()
           P12 = 1;
 
         PUCON = 0x0F;   //pull up
-        P12PD = 0;
-
+        //P12PD = 0;
                         
          KBIE = 0;  
         KBIM0 = 1; 
@@ -299,6 +300,8 @@ void main()
         gLastVolChangeTick =0;
         gIsInVolChangeState =0;
          gLastChangeCountTick =0;
+        gIsInPressState = 0;
+         gHardKeyTick =0;
 
          key_interrupt_disable();
         
@@ -342,7 +345,51 @@ void main()
                 
                         ClrWdt();
                 checkDecoder();
-
+                  if(gIsInPressState != 2)
+                  {
+                  if(P_KEY != 1)
+                  {
+                        gIsInPressState = 0;
+                        gHardKeyTick = 0;
+                  }
+                  else
+                  {
+                        gIsInPressState = 1;
+                        if(gHardKeyTick == 0)
+                        {
+                                GIE = 0;
+                                gHardKeyTick = gSysTick;
+                                if(gHardKeyTick ==0)
+                                {
+                                        gHardKeyTick =1;
+                                        gSysTick =1;
+                                }
+                                GIE =1;
+                        }
+                        else
+                        {
+                                getDiffTickFromNow(gHardKeyTick);
+                                if(nowTick > GNERATE_RESET_SIGNAL_TIME)
+                                {
+                                            P12 =0;
+                                        gIsInPressState = 2;
+                                        GIE = 0;
+                                        gHardKeyTick = gSysTick;
+                                        GIE =1;
+                                }
+                        }
+                  }
+                  }
+                  else
+                  {
+                        getDiffTickFromNow(gHardKeyTick);
+                        if(nowTick >=2)
+                        {
+                                P12 = 1;
+                                gHardKeyTick =0;
+                                gIsInPressState = 1;
+                        }
+                  }
                 if(gVolChangeTick != 0)
                 {
                         getDiffTickFromNow(gVolChangeTick);
