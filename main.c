@@ -45,7 +45,7 @@ unsigned int gHardKeyTick;
 #define ROOL_DIRECTION_UNKNOWN  2
 
 #define MAX_INTERVAL_ROOL       250
-#define BT_VOL_CHANGE_ONE_TIME  9//7   //20
+#define BT_VOL_CHANGE_ONE_TIME  18//7   //20
 
 
 #define GET_TERMINAL_A_STATUS()     (P10)
@@ -406,6 +406,7 @@ void main()
                                 }
                                 else
                                 {
+                                        #if 0
                                               if(gLastVolChangeTick == 0)
                                                 {
                                                         VOL_DN_STOP();
@@ -425,6 +426,7 @@ void main()
                                                         if(nowTick > 5)
                                                         {
                                                                 gLastVolChangeTick =0;
+                                        #endif
                                                                 gTotalChangeCount--;
 
                                                                 if(gRollDirection == ROOL_DIRECTION_CW)
@@ -440,8 +442,8 @@ void main()
                                                                   gSysTick = 1;
                                                                }
                                                                 GIE = 1;
-                                                         }
-                                              }
+                                                       //  }
+                                              //}
                                 }
                         }
                         
